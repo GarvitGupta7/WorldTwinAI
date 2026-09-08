@@ -1,0 +1,241 @@
+{
+  "world_type": "hospital",
+  "name": "Metropolitan Hospital Center Digital Twin",
+  "description": "High-fidelity digital twin of an urban trauma center simulating triage dynamics, bed allocation, staffing fatigue, and emergency surge events.",
+  "spatial_bounds": {
+    "min_x": 0,
+    "max_x": 1000,
+    "min_y": 0,
+    "max_y": 1000
+  },
+  "declared_entity_types": [
+    {
+      "name": "ward",
+      "display_name": "Hospital Department / Ward",
+      "count": 5,
+      "attributes_schema": { "capacity_beds": "integer", "specialty": "string" },
+      "state_schema": { "occupied_beds": "integer", "staff_on_duty": "integer", "status": "string" },
+      "placement": "explicit",
+      "seed_instances": [
+        {
+          "id_suffix": "ward_ed",
+          "name": "Emergency Department & Triage",
+          "position": { "x": 300, "y": 300, "topology": { "node_id": "dept_ed", "level": 1 } },
+          "attributes": { "capacity_beds": 40, "specialty": "Emergency Medicine" },
+          "state": { "occupied_beds": 30, "staff_on_duty": 14, "status": "nominal" }
+        },
+        {
+          "id_suffix": "ward_trauma",
+          "name": "Level-1 Resuscitation Trauma Bays",
+          "position": { "x": 350, "y": 450, "topology": { "node_id": "dept_trauma", "level": 1 } },
+          "attributes": { "capacity_beds": 12, "specialty": "Trauma Critical" },
+          "state": { "occupied_beds": 7, "staff_on_duty": 8, "status": "nominal" }
+        },
+        {
+          "id_suffix": "ward_icu",
+          "name": "Intensive Care Unit (ICU)",
+          "position": { "x": 300, "y": 700, "topology": { "node_id": "dept_icu", "level": 2 } },
+          "attributes": { "capacity_beds": 24, "specialty": "Critical Care" },
+          "state": { "occupied_beds": 18, "staff_on_duty": 12, "status": "nominal" }
+        },
+        {
+          "id_suffix": "ward_surg",
+          "name": "Surgical Inpatient Pavilion",
+          "position": { "x": 700, "y": 300, "topology": { "node_id": "dept_surg", "level": 3 } },
+          "attributes": { "capacity_beds": 50, "specialty": "Surgery" },
+          "state": { "occupied_beds": 38, "staff_on_duty": 10, "status": "nominal" }
+        },
+        {
+          "id_suffix": "ward_gen",
+          "name": "General Medical Ward",
+          "position": { "x": 700, "y": 700, "topology": { "node_id": "dept_gen", "level": 2 } },
+          "attributes": { "capacity_beds": 70, "specialty": "Internal Medicine" },
+          "state": { "occupied_beds": 52, "staff_on_duty": 11, "status": "nominal" }
+        }
+      ]
+    },
+    {
+      "name": "staff",
+      "display_name": "Clinical Care Team",
+      "count": 4,
+      "attributes_schema": { "role": "string", "shift": "string" },
+      "state_schema": { "assigned_ward": "string", "fatigue_index": "number", "status": "string" },
+      "placement": "explicit",
+      "seed_instances": [
+        {
+          "id_suffix": "staff_triage1",
+          "name": "Triage Nursing Unit Alpha",
+          "position": { "x": 320, "y": 320 },
+          "attributes": { "role": "Emergency Nurse", "shift": "day" },
+          "state": { "assigned_ward": "ward_ed", "fatigue_index": 0.32, "status": "active" }
+        },
+        {
+          "id_suffix": "staff_trauma1",
+          "name": "Trauma Surgery On-Duty Team",
+          "position": { "x": 370, "y": 470 },
+          "attributes": { "role": "Trauma Attending", "shift": "day" },
+          "state": { "assigned_ward": "ward_trauma", "fatigue_index": 0.40, "status": "active" }
+        },
+        {
+          "id_suffix": "staff_icu1",
+          "name": "ICU Intensivists",
+          "position": { "x": 320, "y": 680 },
+          "attributes": { "role": "Critical Care", "shift": "day" },
+          "state": { "assigned_ward": "ward_icu", "fatigue_index": 0.38, "status": "active" }
+        },
+        {
+          "id_suffix": "staff_surg1",
+          "name": "OR Support Crew",
+          "position": { "x": 680, "y": 320 },
+          "attributes": { "role": "Perioperative", "shift": "day" },
+          "state": { "assigned_ward": "ward_surg", "fatigue_index": 0.25, "status": "active" }
+        }
+      ]
+    },
+    {
+      "name": "patient",
+      "display_name": "Triage & Inpatient Patients",
+      "count": 45,
+      "attributes_schema": { "triage_acuity": "integer", "age": "integer" },
+      "state_schema": { "status": "string", "wait_time_minutes": "number", "pain_score": "number" },
+      "placement": "cluster_around",
+      "cluster_targets": ["ward_ed", "ward_trauma", "ward_surg", "ward_gen"]
+    },
+    {
+      "name": "ambulance",
+      "display_name": "Ambulance Transport Fleet",
+      "count": 3,
+      "attributes_schema": { "vehicle_id": "string", "equipment_level": "string" },
+      "state_schema": { "status": "string", "eta_minutes": "number", "patient_onboard": "boolean" },
+      "placement": "explicit",
+      "seed_instances": [
+        {
+          "id_suffix": "amb_101",
+          "name": "Paramedic Unit 101",
+          "position": { "x": 150, "y": 300 },
+          "attributes": { "vehicle_id": "MED-101", "equipment_level": "ALS" },
+          "state": { "status": "in_transit", "eta_minutes": 5.0, "patient_onboard": true }
+        },
+        {
+          "id_suffix": "amb_102",
+          "name": "Paramedic Unit 102",
+          "position": { "x": 200, "y": 250 },
+          "attributes": { "vehicle_id": "MED-102", "equipment_level": "BLS" },
+          "state": { "status": "standby", "eta_minutes": 0.0, "patient_onboard": false }
+        },
+        {
+          "id_suffix": "amb_103",
+          "name": "Critical Care Transport 103",
+          "position": { "x": 250, "y": 200 },
+          "attributes": { "vehicle_id": "MED-103", "equipment_level": "CCT" },
+          "state": { "status": "dispatched", "eta_minutes": 12.0, "patient_onboard": false }
+        }
+      ]
+    }
+  ],
+  "declared_relationship_types": [
+    { "relationship_type": "admitted_to", "source_entity_type": "patient", "target_entity_type": "ward" },
+    { "relationship_type": "assigned_to_ward", "source_entity_type": "staff", "target_entity_type": "ward" },
+    { "relationship_type": "transporting_to", "source_entity_type": "ambulance", "target_entity_type": "ward" }
+  ],
+  "metrics": [
+    {
+      "name": "ed_wait_time",
+      "display_name": "ED Average Triage Wait Time",
+      "description": "Mean waiting duration in minutes for initial triage assessment in Emergency Department.",
+      "unit": "minutes",
+      "healthy_min": 5.0,
+      "healthy_max": 30.0,
+      "computation_type": "avg_state_field",
+      "target_entity_type": "patient",
+      "target_field": "wait_time_minutes"
+    },
+    {
+      "name": "bed_occupancy_rate",
+      "display_name": "Hospital Bed Occupancy Rate",
+      "description": "Ratio of occupied patient beds to total hospital licensed bed capacity.",
+      "unit": "ratio",
+      "healthy_min": 0.60,
+      "healthy_max": 0.85,
+      "computation_type": "ratio_state_attribute",
+      "target_entity_type": "ward",
+      "state_field": "occupied_beds",
+      "attr_field": "capacity_beds"
+    },
+    {
+      "name": "nurse_to_patient_ratio",
+      "display_name": "Clinical Workload Fatigue Index",
+      "description": "Mean clinical fatigue and shift strain index across healthcare personnel.",
+      "unit": "index",
+      "healthy_min": 0.15,
+      "healthy_max": 0.55,
+      "computation_type": "avg_state_field",
+      "target_entity_type": "staff",
+      "target_field": "fatigue_index"
+    },
+    {
+      "name": "system_flow_efficiency",
+      "display_name": "Hospital Throughput Efficiency",
+      "description": "Composite clinical throughput index balancing triage delays and bed utilization.",
+      "unit": "index",
+      "healthy_min": 0.70,
+      "healthy_max": 0.98,
+      "computation_type": "composite_flow_efficiency",
+      "target_entity_type": "world",
+      "target_field": "efficiency"
+    }
+  ],
+  "scenario_vocabulary": [
+    {
+      "action": "mass_casualty_surge",
+      "display_name": "Mass Casualty Incident",
+      "description": "Simulates sudden arrival of multiple high-acuity trauma patients in Emergency Department.",
+      "target_entity_types": ["ward", "patient", "ambulance"],
+      "allowed_parameters": [
+        { "name": "surge_patient_count", "type": "integer", "description": "Number of arriving trauma patients", "default": 20 }
+      ],
+      "example_phrases": [
+        "Simulate a 20-patient highway accident mass casualty surge",
+        "Trigger an emergency code orange surge in ED"
+      ]
+    },
+    {
+      "action": "divert_ambulances",
+      "display_name": "Emergency Divert Status",
+      "description": "Diverts incoming ambulance transports to neighboring regional medical facilities.",
+      "target_entity_types": ["ambulance", "ward"],
+      "allowed_parameters": [
+        { "name": "divert_percentage", "type": "number", "description": "Fraction of transport volume diverted", "default": 0.5 }
+      ],
+      "example_phrases": [
+        "Place Emergency Department on divert for 2 hours",
+        "Divert 50% of incoming non-trauma ambulances"
+      ]
+    },
+    {
+      "action": "call_in_backup_staff",
+      "display_name": "Mobilize On-Call Medical Staff",
+      "description": "Activates reserve nursing and surgical teams to expand clinical throughput.",
+      "target_entity_types": ["staff", "ward"],
+      "allowed_parameters": [
+        { "name": "additional_nurses", "type": "integer", "description": "Number of backup clinicians deployed", "default": 8 }
+      ],
+      "example_phrases": [
+        "Call in 8 backup emergency nurses to handle the surge",
+        "Deploy reserve critical care teams"
+      ]
+    }
+  ],
+  "initial_knowledge": [
+    {
+      "title": "Hospital Emergency Escalation and Divert Protocols",
+      "category": "clinical_operations",
+      "content": "When ED bed occupancy exceeds 90% or average triage wait time exceeds 45 minutes, hospital command enters Phase 2 Surge. Low-acuity ambulance transports are diverted to partner facilities, and reserve nursing staff are deployed."
+    },
+    {
+      "title": "ICU Bed Capacity and Critical Care Staffing Standards",
+      "category": "critical_care",
+      "content": "Intensive Care Units must maintain a minimum 1:2 nurse-to-patient ratio for mechanically ventilated patients. When ICU occupancy exceeds 85%, step-down telemetry units are activated."
+    }
+  ]
+}

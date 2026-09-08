@@ -1,0 +1,380 @@
+{
+  "world_type": "campus",
+  "name": "University Campus Digital Twin",
+  "description": "Stateful simulation of a university campus environment with buildings, transit infrastructure, pedestrian dynamics, and scheduled events.",
+  "spatial_bounds": {
+    "min_x": 0,
+    "max_x": 1000,
+    "min_y": 0,
+    "max_y": 1000
+  },
+  "declared_entity_types": [
+    {
+      "name": "building",
+      "display_name": "Campus Building",
+      "count": 5,
+      "attributes_schema": {
+        "capacity": "integer",
+        "building_type": "string",
+        "floors": "integer"
+      },
+      "state_schema": {
+        "current_occupancy": "integer",
+        "energy_consumption_kw": "number",
+        "access_restricted": "boolean"
+      },
+      "placement": "explicit",
+      "seed_instances": [
+        {
+          "id_suffix": "bld_admin",
+          "name": "Administration & Enrollment Hall",
+          "position": { "x": 500, "y": 200, "geo": { "lat": 42.3601, "lng": -71.0942 }, "topology": { "node_id": "zone_admin", "level": 1 } },
+          "attributes": { "capacity": 600, "building_type": "administrative", "floors": 4 },
+          "state": { "current_occupancy": 120, "energy_consumption_kw": 85.4, "access_restricted": false }
+        },
+        {
+          "id_suffix": "bld_science",
+          "name": "Science & Engineering Complex",
+          "position": { "x": 250, "y": 450, "geo": { "lat": 42.3615, "lng": -71.0970 }, "topology": { "node_id": "zone_stem", "level": 1 } },
+          "attributes": { "capacity": 1200, "building_type": "academic_stem", "floors": 6 },
+          "state": { "current_occupancy": 480, "energy_consumption_kw": 240.8, "access_restricted": false }
+        },
+        {
+          "id_suffix": "bld_union",
+          "name": "Student Union & Event Pavilion",
+          "position": { "x": 500, "y": 550, "geo": { "lat": 42.3598, "lng": -71.0935 }, "topology": { "node_id": "zone_union", "level": 1 } },
+          "attributes": { "capacity": 1500, "building_type": "event_social", "floors": 3 },
+          "state": { "current_occupancy": 750, "energy_consumption_kw": 310.2, "access_restricted": false }
+        },
+        {
+          "id_suffix": "bld_library",
+          "name": "Central Research Library",
+          "position": { "x": 750, "y": 450, "geo": { "lat": 42.3590, "lng": -71.0910 }, "topology": { "node_id": "zone_library", "level": 1 } },
+          "attributes": { "capacity": 800, "building_type": "study", "floors": 5 },
+          "state": { "current_occupancy": 320, "energy_consumption_kw": 115.0, "access_restricted": false }
+        },
+        {
+          "id_suffix": "bld_dorms",
+          "name": "Quadrangle Residential Dormitories",
+          "position": { "x": 500, "y": 850, "geo": { "lat": 42.3570, "lng": -71.0930 }, "topology": { "node_id": "zone_residence", "level": 1 } },
+          "attributes": { "capacity": 2000, "building_type": "residential", "floors": 8 },
+          "state": { "current_occupancy": 1100, "energy_consumption_kw": 195.5, "access_restricted": false }
+        }
+      ]
+    },
+    {
+      "name": "road",
+      "display_name": "Campus Roadway / Arterial",
+      "count": 7,
+      "attributes_schema": {
+        "capacity_vehicles_per_min": "number",
+        "speed_limit_mph": "number",
+        "lanes": "integer"
+      },
+      "state_schema": {
+        "status": "string",
+        "current_flow_rate": "number",
+        "congestion_index": "number",
+        "blocked": "boolean"
+      },
+      "placement": "explicit",
+      "seed_instances": [
+        {
+          "id_suffix": "road_north",
+          "name": "North Campus Parkway",
+          "position": { "x": 500, "y": 100, "topology": { "node_id": "seg_north" } },
+          "attributes": { "capacity_vehicles_per_min": 35.0, "speed_limit_mph": 25, "lanes": 2 },
+          "state": { "status": "open", "current_flow_rate": 14.2, "congestion_index": 0.28, "blocked": false }
+        },
+        {
+          "id_suffix": "road_central",
+          "name": "Central Academic Avenue",
+          "position": { "x": 500, "y": 400, "topology": { "node_id": "seg_central" } },
+          "attributes": { "capacity_vehicles_per_min": 45.0, "speed_limit_mph": 20, "lanes": 2 },
+          "state": { "status": "open", "current_flow_rate": 28.5, "congestion_index": 0.48, "blocked": false }
+        },
+        {
+          "id_suffix": "road_west",
+          "name": "Science Way (West Corridor)",
+          "position": { "x": 250, "y": 500, "topology": { "node_id": "seg_west" } },
+          "attributes": { "capacity_vehicles_per_min": 30.0, "speed_limit_mph": 20, "lanes": 2 },
+          "state": { "status": "open", "current_flow_rate": 12.0, "congestion_index": 0.32, "blocked": false }
+        },
+        {
+          "id_suffix": "road_east",
+          "name": "Library Boulevard (East Corridor)",
+          "position": { "x": 750, "y": 500, "topology": { "node_id": "seg_east" } },
+          "attributes": { "capacity_vehicles_per_min": 30.0, "speed_limit_mph": 20, "lanes": 2 },
+          "state": { "status": "open", "current_flow_rate": 10.5, "congestion_index": 0.26, "blocked": false }
+        },
+        {
+          "id_suffix": "road_union",
+          "name": "Pavilion Transit Loop",
+          "position": { "x": 500, "y": 600, "topology": { "node_id": "seg_union" } },
+          "attributes": { "capacity_vehicles_per_min": 25.0, "speed_limit_mph": 15, "lanes": 1 },
+          "state": { "status": "open", "current_flow_rate": 18.0, "congestion_index": 0.52, "blocked": false }
+        },
+        {
+          "id_suffix": "road_south",
+          "name": "Quad Residence Way",
+          "position": { "x": 500, "y": 750, "topology": { "node_id": "seg_south" } },
+          "attributes": { "capacity_vehicles_per_min": 35.0, "speed_limit_mph": 20, "lanes": 2 },
+          "state": { "status": "open", "current_flow_rate": 16.0, "congestion_index": 0.34, "blocked": false }
+        },
+        {
+          "id_suffix": "road_perimeter",
+          "name": "Perimeter Connector",
+          "position": { "x": 850, "y": 850, "topology": { "node_id": "seg_perim" } },
+          "attributes": { "capacity_vehicles_per_min": 40.0, "speed_limit_mph": 30, "lanes": 2 },
+          "state": { "status": "open", "current_flow_rate": 8.5, "congestion_index": 0.18, "blocked": false }
+        }
+      ]
+    },
+    {
+      "name": "bus",
+      "display_name": "Campus Shuttle Bus",
+      "count": 4,
+      "attributes_schema": {
+        "capacity_passengers": "integer",
+        "route_name": "string",
+        "fuel_type": "string"
+      },
+      "state_schema": {
+        "current_passengers": "integer",
+        "occupancy_rate": "number",
+        "speed_mph": "number",
+        "current_stop": "string",
+        "delay_minutes": "number"
+      },
+      "placement": "explicit",
+      "seed_instances": [
+        {
+          "id_suffix": "bus_red1",
+          "name": "Campus Shuttle Red-1",
+          "position": { "x": 480, "y": 220, "topology": { "node_id": "seg_north" } },
+          "attributes": { "capacity_passengers": 50, "route_name": "Express Loop A", "fuel_type": "electric" },
+          "state": { "current_passengers": 28, "occupancy_rate": 0.56, "speed_mph": 18.0, "current_stop": "Admin Hall", "delay_minutes": 1.2 }
+        },
+        {
+          "id_suffix": "bus_blue2",
+          "name": "Campus Shuttle Blue-2",
+          "position": { "x": 260, "y": 470, "topology": { "node_id": "seg_west" } },
+          "attributes": { "capacity_passengers": 50, "route_name": "STEM & Library Circulator", "fuel_type": "electric" },
+          "state": { "current_passengers": 34, "occupancy_rate": 0.68, "speed_mph": 14.5, "current_stop": "Science Complex", "delay_minutes": 2.5 }
+        },
+        {
+          "id_suffix": "bus_green3",
+          "name": "Campus Shuttle Green-3",
+          "position": { "x": 510, "y": 580, "topology": { "node_id": "seg_union" } },
+          "attributes": { "capacity_passengers": 50, "route_name": "Union & Dorms Direct", "fuel_type": "hybrid" },
+          "state": { "current_passengers": 42, "occupancy_rate": 0.84, "speed_mph": 11.0, "current_stop": "Student Union", "delay_minutes": 4.8 }
+        },
+        {
+          "id_suffix": "bus_express4",
+          "name": "Campus Express Bus-4",
+          "position": { "x": 510, "y": 770, "topology": { "node_id": "seg_south" } },
+          "attributes": { "capacity_passengers": 60, "route_name": "Perimeter Commuter", "fuel_type": "electric" },
+          "state": { "current_passengers": 30, "occupancy_rate": 0.50, "speed_mph": 22.0, "current_stop": "Dorm Quad", "delay_minutes": 0.5 }
+        }
+      ]
+    },
+    {
+      "name": "student",
+      "display_name": "Student Pedestrian Group",
+      "count": 50,
+      "attributes_schema": {
+        "major": "string",
+        "year": "integer",
+        "preferred_transit": "string"
+      },
+      "state_schema": {
+        "transit_mode": "string",
+        "origin": "string",
+        "destination": "string",
+        "commute_time_minutes": "number",
+        "stress_level": "number"
+      },
+      "placement": "cluster_around",
+      "cluster_targets": ["bld_dorms", "bld_union", "bld_science"]
+    },
+    {
+      "name": "event",
+      "display_name": "Campus Event",
+      "count": 1,
+      "attributes_schema": {
+        "event_type": "string",
+        "expected_attendance": "integer",
+        "host_location": "string"
+      },
+      "state_schema": {
+        "status": "string",
+        "current_surge_factor": "number",
+        "active": "boolean"
+      },
+      "placement": "explicit",
+      "seed_instances": [
+        {
+          "id_suffix": "event_career_fair",
+          "name": "Annual University Career & Internship Fair",
+          "position": { "x": 500, "y": 550, "topology": { "node_id": "zone_union" } },
+          "attributes": { "event_type": "career_fair", "expected_attendance": 1200, "host_location": "Student Union Pavilion" },
+          "state": { "status": "active", "current_surge_factor": 1.75, "active": true }
+        }
+      ]
+    }
+  ],
+  "declared_relationship_types": [
+    { "relationship_type": "serviced_by_road", "source_entity_type": "building", "target_entity_type": "road" },
+    { "relationship_type": "traverses", "source_entity_type": "bus", "target_entity_type": "road" },
+    { "relationship_type": "located_at", "source_entity_type": "event", "target_entity_type": "building" },
+    { "relationship_type": "traveling_to", "source_entity_type": "student", "target_entity_type": "building" }
+  ],
+  "metrics": [
+    {
+      "name": "road_congestion",
+      "display_name": "Average Road Congestion Index",
+      "description": "Mean congestion ratio (current flow / road capacity) across active campus roadways.",
+      "unit": "ratio",
+      "healthy_min": 0.1,
+      "healthy_max": 0.55,
+      "computation_type": "avg_state_field",
+      "target_entity_type": "road",
+      "target_field": "congestion_index"
+    },
+    {
+      "name": "bus_occupancy_rate",
+      "display_name": "Average Bus Occupancy Rate",
+      "description": "Mean passenger load factor across all active campus shuttles.",
+      "unit": "ratio",
+      "healthy_min": 0.3,
+      "healthy_max": 0.75,
+      "computation_type": "avg_state_field",
+      "target_entity_type": "bus",
+      "target_field": "occupancy_rate"
+    },
+    {
+      "name": "avg_commute_time",
+      "display_name": "Student Average Commute Time",
+      "description": "Mean duration in minutes for student transit between campus nodes.",
+      "unit": "minutes",
+      "healthy_min": 10.0,
+      "healthy_max": 25.0,
+      "computation_type": "avg_state_field",
+      "target_entity_type": "student",
+      "target_field": "commute_time_minutes"
+    },
+    {
+      "name": "building_density",
+      "display_name": "Campus Building Density",
+      "description": "Mean utilization ratio of building capacity across campus facilities.",
+      "unit": "ratio",
+      "healthy_min": 0.2,
+      "healthy_max": 0.7,
+      "computation_type": "ratio_state_attribute",
+      "target_entity_type": "building",
+      "state_field": "current_occupancy",
+      "attr_field": "capacity"
+    },
+    {
+      "name": "system_flow_efficiency",
+      "display_name": "Overall Campus Flow Efficiency",
+      "description": "Composite operational flow index balancing roadway throughput and student transit delay.",
+      "unit": "index",
+      "healthy_min": 0.70,
+      "healthy_max": 0.98,
+      "computation_type": "composite_flow_efficiency",
+      "target_entity_type": "world",
+      "target_field": "efficiency"
+    }
+  ],
+  "scenario_vocabulary": [
+    {
+      "action": "close_road",
+      "display_name": "Road Closure / Maintenance",
+      "description": "Blocks a specified roadway or segment, diverting traffic flow onto adjacent routes.",
+      "target_entity_types": ["road"],
+      "allowed_parameters": [
+        { "name": "road_id", "type": "string", "description": "ID or name of the target road" },
+        { "name": "duration_steps", "type": "integer", "description": "Duration of closure in simulation steps", "default": 60 }
+      ],
+      "example_phrases": [
+        "Close Central Academic Avenue for water pipe repair",
+        "Block Pavilion Transit Loop due to emergency maintenance",
+        "Shut down North Campus Parkway"
+      ]
+    },
+    {
+      "action": "increase_bus_frequency",
+      "display_name": "Increase Shuttle Frequency",
+      "description": "Deploys extra buses or decreases headways to reduce shuttle waiting times and passenger overcrowding.",
+      "target_entity_types": ["bus"],
+      "allowed_parameters": [
+        { "name": "multiplier", "type": "number", "description": "Frequency boost factor (e.g., 1.5 or 2.0)", "default": 1.5 },
+        { "name": "route_name", "type": "string", "description": "Specific route to boost, or 'all'", "default": "all" }
+      ],
+      "example_phrases": [
+        "Double the bus frequency on all campus shuttle routes",
+        "Add more buses to the Union and Dorms Direct route",
+        "Increase shuttle frequency by 50% during peak event hours"
+      ]
+    },
+    {
+      "action": "reroute_buses",
+      "display_name": "Reroute Campus Transit",
+      "description": "Diverts bus lines away from congested or closed corridors onto alternate perimeter roads.",
+      "target_entity_types": ["bus", "road"],
+      "allowed_parameters": [
+        { "name": "avoid_road_id", "type": "string", "description": "Road corridor to bypass" },
+        { "name": "alternate_road_id", "type": "string", "description": "Alternate road to route through" }
+      ],
+      "example_phrases": [
+        "Reroute buses to avoid Pavilion Transit Loop",
+        "Divert shuttle traffic via Perimeter Connector"
+      ]
+    },
+    {
+      "action": "shift_class_schedule",
+      "display_name": "Stagger Class Start Times",
+      "description": "Staggers lecture start and end times by 15-30 minutes across departments to distribute pedestrian peaks.",
+      "target_entity_types": ["building", "student"],
+      "allowed_parameters": [
+        { "name": "stagger_minutes", "type": "integer", "description": "Minutes of stagger", "default": 20 }
+      ],
+      "example_phrases": [
+        "Stagger lecture start times by 20 minutes to reduce peak corridor crowding",
+        "Spread out class dismissal times between Science and Administration halls"
+      ]
+    },
+    {
+      "action": "host_event",
+      "display_name": "Schedule Special Event",
+      "description": "Triggers a high-attendance campus gathering creating pedestrian surges and localized traffic spikes.",
+      "target_entity_types": ["event", "building"],
+      "allowed_parameters": [
+        { "name": "location_id", "type": "string", "description": "Host building ID" },
+        { "name": "attendance", "type": "integer", "description": "Anticipated attendees", "default": 1000 }
+      ],
+      "example_phrases": [
+        "Host a regional robotics competition at Science Complex with 1500 visitors",
+        "Schedule a concert at Student Union Pavilion"
+      ]
+    }
+  ],
+  "initial_knowledge": [
+    {
+      "title": "Campus Transportation & Mobility Master Plan",
+      "category": "mobility",
+      "content": "Campus transit operates four key lines connecting residential dorms to academic clusters. Central Academic Avenue and Pavilion Transit Loop experience severe congestion during class transition windows (10-minute intervals). Closing Central Academic Avenue without rerouting shuttle lines increases average student commute time by over 45% and causes bus delays to compound exponentially. Implementing a 20-minute class stagger flattens peak pedestrian density by 32%."
+    },
+    {
+      "title": "Pavilion Event Traffic & Safety Protocols",
+      "category": "event_management",
+      "content": "Special events with over 800 attendees at the Student Union & Event Pavilion create immediate vehicle bottlenecks on Pavilion Transit Loop. Road capacity of 25 vehicles/min is exceeded within 15 minutes of event start if overflow parking is not activated. Standard intervention protocol requires: 1) Increasing shuttle frequency by 1.5x on Union routes, and 2) Diverting commercial delivery vehicles to Perimeter Connector."
+    },
+    {
+      "title": "Emergency Access and Route Redundancy Guidelines",
+      "category": "safety",
+      "content": "North Campus Parkway and Perimeter Connector serve as designated emergency vehicle arterial corridors. At least one 2-lane corridor must maintain a congestion index below 0.60 at all times. Simultaneous closure of North Campus Parkway and Central Academic Avenue is prohibited under University Safety Directive 4.2."
+    }
+  ]
+}
