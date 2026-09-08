@@ -1,0 +1,3 @@
+from app.simulation import apply,advance,metrics
+def candidate_interventions():
+ return [{"name":"Restore two shuttle buses","description":"Increase transport availability by restoring two buses.","parameters":{"restore_buses":2},"operational_cost":20,"safety_score":.95,"complexity_score":.2},{"name":"Open alternate route","description":"Increase effective capacity on North Gate Road.","parameters":{"road_id":"road-north","capacity_multiplier":1.35},"operational_cost":30,"safety_score":.9,"complexity_score":.35},{"name":"Stagger event exit","description":"Reduce synchronized demand around the event.","parameters":{"event_stagger_minutes":20},"operational_cost":15,"safety_score":.92,"complexity_score":.3}]
